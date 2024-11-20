@@ -147,32 +147,6 @@ public class FonteEnergiaDAO extends Repository {
         throw new FonteEnergiaNotFoundException("Fonte de energia não encontrada para atualização.");
     }
 
-    /**
-     * Busca todas as fontes de energia relacionadas a uma microgrid.
-     *
-     * @param idMicrogrid ID da microgrid.
-     * @return Lista de fontes de energia.
-     * @throws FonteEnergiaNotFoundException Se nenhuma fonte for encontrada.
-     */
-    public ArrayList<FonteEnergiaTO> findByMicrogrid(Long idMicrogrid) {
-        ArrayList<FonteEnergiaTO> fontes = new ArrayList<>();
-        String sql = "SELECT * FROM FONTE_ENERGIA WHERE ID_MICROGRID = ?";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-            ps.setLong(1, idMicrogrid);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                fontes.add(populateFonte(rs));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar fontes de energia por microgrid: " + e.getMessage(), e);
-        } finally {
-            closeConnection();
-        }
-        if (fontes.isEmpty()) {
-            throw new FonteEnergiaNotFoundException("Nenhuma fonte de energia encontrada para a microgrid informada.");
-        }
-        return fontes;
-    }
 
     /**
      * Preenche os dados de um objeto FonteEnergiaTO a partir de um ResultSet.
@@ -194,20 +168,6 @@ public class FonteEnergiaDAO extends Repository {
     }
 
 
-    public double calcularCapacidadeTotalPorMicrogrid(Long idMicrogrid) {
-        String sql = "SELECT SUM(CAPACIDADE_INSTALADA) AS TOTAL FROM FONTE_ENERGIA WHERE ID_MICROGRID = ?";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-            ps.setLong(1, idMicrogrid);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getDouble("TOTAL");
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao calcular capacidade total: " + e.getMessage(), e);
-        } finally {
-            closeConnection();
-        }
-        return 0;
-    }
+
 
 }

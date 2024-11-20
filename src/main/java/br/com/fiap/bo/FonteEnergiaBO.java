@@ -13,9 +13,6 @@ public class FonteEnergiaBO {
     public FonteEnergiaBO() {
         this.fonteEnergiaDAO = new FonteEnergiaDAO();
     }
-    public double calcularCapacidadeTotalPorMicrogrid(Long idMicrogrid) {
-        return fonteEnergiaDAO.calcularCapacidadeTotalPorMicrogrid(idMicrogrid);
-    }
 
     /**
      * Busca todas as fontes de energia.
@@ -113,45 +110,4 @@ public class FonteEnergiaBO {
             throw new InvalidFonteEnergiaException("O status da fonte é obrigatório.");
         }
     }
-
-    /**
-     * Verifica se todas as fontes de uma microgrid estão dentro do limite de capacidade instalada.
-     *
-     * @param idMicrogrid ID da microgrid.
-     * @param limite      Limite de capacidade instalada.
-     * @return true se todas as fontes estiverem dentro do limite, false caso contrário.
-     */
-    public boolean verificarFontesDentroDoLimite(Long idMicrogrid, double limite) {
-        ArrayList<FonteEnergiaTO> fontes = fonteEnergiaDAO.findByMicrogrid(idMicrogrid);
-        if (fontes.isEmpty()) {
-            throw new FonteEnergiaNotFoundException("Nenhuma fonte de energia encontrada para a microgrid informada.");
-        }
-        return fontes.stream().allMatch(fonte -> fonte.getCapacidadeInstalada() <= limite);
-    }
-
-    /**
-     * Calcula a capacidade total instalada de todas as fontes em uma microgrid.
-     *
-     * @param idMicrogrid ID da microgrid.
-     * @return Capacidade total instalada.
-     */
-    public double calcularCapacidadeTotal(Long idMicrogrid) {
-        ArrayList<FonteEnergiaTO> fontes = fonteEnergiaDAO.findByMicrogrid(idMicrogrid);
-        if (fontes.isEmpty()) {
-            throw new FonteEnergiaNotFoundException("Nenhuma fonte de energia encontrada para a microgrid informada.");
-        }
-        return fontes.stream().mapToDouble(FonteEnergiaTO::getCapacidadeInstalada).sum();
-    }
-
-    public ArrayList<FonteEnergiaTO> findByMicrogrid(Long idMicrogrid) {
-        if (idMicrogrid == null) {
-            throw new InvalidFonteEnergiaException("ID da microgrid é obrigatório.");
-        }
-        ArrayList<FonteEnergiaTO> fontes = fonteEnergiaDAO.findByMicrogrid(idMicrogrid);
-        if (fontes.isEmpty()) {
-            throw new FonteEnergiaNotFoundException("Nenhuma fonte de energia encontrada para a microgrid informada.");
-        }
-        return fontes;
-    }
-
 }
