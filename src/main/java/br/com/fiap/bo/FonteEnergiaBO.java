@@ -17,14 +17,6 @@ public class FonteEnergiaBO {
         return fonteEnergiaDAO.calcularCapacidadeTotalPorMicrogrid(idMicrogrid);
     }
 
-    public void gerarRelatorioFontes(Long idMicrogrid) {
-        fonteEnergiaDAO.gerarRelatorioFontes(idMicrogrid);
-    }
-
-    public void validarFonte(FonteEnergiaTO fonte) {
-        fonteEnergiaDAO.validarFonte(fonte);
-    }
-
     /**
      * Busca todas as fontes de energia.
      *

@@ -101,38 +101,4 @@ public class FonteEnergiaTO {
         this.status = status;
     }
 
-    // Lógica adicional
-
-    /**
-     * Verifica se a capacidade instalada está dentro do limite especificado.
-     *
-     * @param limite Limite de capacidade instalada.
-     * @return true se a capacidade instalada for menor ou igual ao limite; false caso contrário.
-     */
-    public boolean verificarCapacidadeInstalada(double limite) {
-        return this.capacidadeInstalada <= limite;
-    }
-
-    /**
-     * Calcula o tempo de operação da fonte de energia em anos.
-     *
-     * @return Anos de operação desde a data de instalação.
-     */
-    public int calcularTempoOperacao() {
-        if (this.dataInstalacao == null) {
-            return 0;
-        }
-        return LocalDate.now().getYear() - this.dataInstalacao.getYear();
-    }
-
-    /**
-     * Gera uma descrição detalhada da fonte de energia.
-     *
-     * @return String com informações completas da fonte.
-     */
-    public String gerarDescricaoDetalhada() {
-        return String.format("Fonte de Energia [Tipo: %s, Capacidade: %.2f %s, Status: %s, Data de Instalação: %s]",
-                this.tipo, this.capacidadeInstalada, this.unidadeCapacidade, this.status,
-                this.dataInstalacao != null ? this.dataInstalacao.toString() : "N/A");
-    }
 }

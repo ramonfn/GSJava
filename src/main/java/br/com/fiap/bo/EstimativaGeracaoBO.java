@@ -6,7 +6,6 @@ import br.com.fiap.exception.EstimativaGeracaoNotFoundException;
 import br.com.fiap.exception.InvalidEstimativaGeracaoException;
 
 import java.util.ArrayList;
-import java.util.OptionalDouble;
 
 public class EstimativaGeracaoBO {
     private final EstimativaGeracaoDAO estimativaGeracaoDAO;
@@ -30,42 +29,6 @@ public class EstimativaGeracaoBO {
         return estimativa;
     }
 
-    // Verifica se a média de watts excede o limite informado
-    public boolean verificarSeMediaExcede(double limite) {
-        ArrayList<EstimativaGeracaoTO> estimativas = new ArrayList<>(estimativaGeracaoDAO.findAll());
-        if (estimativas.isEmpty()) {
-            throw new EstimativaGeracaoNotFoundException("Nenhuma estimativa encontrada.");
-        }
-
-        OptionalDouble media = estimativas.stream()
-                .mapToDouble(EstimativaGeracaoTO::getWattsEstimados)
-                .average();
-
-        return media.isPresent() && media.getAsDouble() > limite;
-    }
-
-    // Calcula a média de watts estimados para uma microgrid específica
-    public double calcularMediaWattsPorMicrogrid(Long idMicrogrid) {
-        validateMicrogridId(idMicrogrid);
-
-        ArrayList<EstimativaGeracaoTO> estimativas = new ArrayList<>(estimativaGeracaoDAO.findByMicrogrid(idMicrogrid));
-        return estimativas.stream()
-                .mapToDouble(EstimativaGeracaoTO::getWattsEstimados)
-                .average()
-                .orElseThrow(() -> new EstimativaGeracaoNotFoundException(
-                        "Nenhuma estimativa encontrada para a microgrid informada."
-                ));
-    }
-
-    // Projeta a geração anual total de watts para uma microgrid específica
-    public double projetarGeracaoAnual(Long idMicrogrid) {
-        validateMicrogridId(idMicrogrid);
-
-        ArrayList<EstimativaGeracaoTO> estimativas = new ArrayList<>(estimativaGeracaoDAO.findByMicrogrid(idMicrogrid));
-        return estimativas.stream()
-                .mapToDouble(EstimativaGeracaoTO::getWattsEstimados)
-                .sum();
-    }
 
     // Salva uma nova estimativa após validação
     public EstimativaGeracaoTO save(EstimativaGeracaoTO estimativa) {
@@ -125,31 +88,8 @@ public class EstimativaGeracaoBO {
         }
     }
 
-    public double calcularMediaWattsEstimados(ArrayList<EstimativaGeracaoTO> estimativas) {
-        if (estimativas == null || estimativas.isEmpty()) {
-            throw new IllegalArgumentException("A lista de estimativas não pode estar vazia.");
-        }
-        return estimativas.stream()
-                .mapToDouble(EstimativaGeracaoTO::getWattsEstimados)
-                .average()
-                .orElse(0.0);
-    }
-
-    public ArrayList<EstimativaGeracaoTO> buscarEstimativasPorAno(ArrayList<EstimativaGeracaoTO> estimativas, int ano) {
-        if (ano < 1000 || ano > 9999) {
-            throw new IllegalArgumentException("O ano deve conter exatamente 4 dígitos.");
-        }
-        return EstimativaGeracaoTO.filtrarPorAno(estimativas, ano);
-    }
     public double calcularMediaDeEstimativas(ArrayList<EstimativaGeracaoTO> estimativas) {
         EstimativaGeracaoTO util = new EstimativaGeracaoTO();
         return util.calcularMediaWattsEstimados(estimativas);
     }
-    public void gerarRelatorioMedia(ArrayList<EstimativaGeracaoTO> estimativas) {
-        double media = calcularMediaDeEstimativas(estimativas);
-        System.out.println("A média das estimativas é: " + media);
-    }
-
-
-
 }

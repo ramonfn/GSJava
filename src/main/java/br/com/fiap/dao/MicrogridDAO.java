@@ -30,7 +30,7 @@ public class MicrogridDAO extends Repository {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao buscar todas as microgrids: " + e.getMessage());
             throw new InvalidMicrogridException("Erro ao buscar todas as microgrids: " + e.getMessage());
         }
 
@@ -42,12 +42,6 @@ public class MicrogridDAO extends Repository {
         return microgrids;
     }
 
-    /**
-     * Busca uma microgrid pelo nome.
-     *
-     * @param nome Nome da microgrid.
-     * @return Objeto MicrogridTO.
-     */
     public MicrogridTO findByNome(String nome) {
         if (nome == null || nome.trim().isEmpty()) {
             throw new InvalidMicrogridException("O nome da microgrid não pode ser vazio.");
@@ -66,7 +60,7 @@ public class MicrogridDAO extends Repository {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao buscar microgrid por nome: " + e.getMessage());
             throw new InvalidMicrogridException("Erro ao buscar microgrid por nome: " + e.getMessage());
         }
 
@@ -74,12 +68,6 @@ public class MicrogridDAO extends Repository {
         throw new MicrogridNotFoundException("Microgrid não encontrada com o nome informado.");
     }
 
-    /**
-     * Salva uma nova microgrid no banco de dados.
-     *
-     * @param microgrid Objeto MicrogridTO contendo os dados a serem salvos.
-     * @return Microgrid salva.
-     */
     public MicrogridTO save(MicrogridTO microgrid) {
         String sql = "INSERT INTO MICROGRID (NOME, ENDERECO, TOTAL_RESIDENCIAS, TOTAL_HABITANTES) VALUES (?, ?, ?, ?)";
         System.out.println("Executando query para salvar microgrid: " + microgrid.getNome());
@@ -101,21 +89,15 @@ public class MicrogridDAO extends Repository {
             }
         } catch (SQLException e) {
             if (e.getMessage().contains("UNIQUE")) { // Lida com violação de restrição única
+                System.err.println("Já existe uma microgrid com o nome informado: " + microgrid.getNome());
                 throw new InvalidMicrogridException("Já existe uma microgrid com o nome informado.");
             }
-            e.printStackTrace();
+            System.err.println("Erro ao salvar microgrid: " + e.getMessage());
             throw new InvalidMicrogridException("Erro ao salvar microgrid: " + e.getMessage());
         }
         throw new InvalidMicrogridException("Falha ao salvar a microgrid.");
     }
 
-
-    /**
-     * Busca uma microgrid pelo ID.
-     *
-     * @param idMicrogrid ID da microgrid.
-     * @return Microgrid encontrada.
-     */
     public MicrogridTO findById(Long idMicrogrid) {
         if (idMicrogrid == null) {
             throw new InvalidMicrogridException("O ID da microgrid não pode ser nulo.");
@@ -134,7 +116,7 @@ public class MicrogridDAO extends Repository {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao buscar microgrid por ID: " + e.getMessage());
             throw new InvalidMicrogridException("Erro ao buscar microgrid por ID: " + e.getMessage());
         }
 
@@ -142,12 +124,6 @@ public class MicrogridDAO extends Repository {
         throw new MicrogridNotFoundException("Microgrid não encontrada para o ID informado.");
     }
 
-    /**
-     * Exclui uma microgrid pelo ID.
-     *
-     * @param idMicrogrid ID da microgrid.
-     * @return true se a exclusão for bem-sucedida.
-     */
     public boolean delete(Long idMicrogrid) {
         if (idMicrogrid == null) {
             throw new InvalidMicrogridException("O ID da microgrid não pode ser nulo.");
@@ -164,20 +140,13 @@ public class MicrogridDAO extends Repository {
                 return true;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao excluir microgrid: " + e.getMessage());
             throw new InvalidMicrogridException("Erro ao excluir microgrid: " + e.getMessage());
         }
 
         throw new MicrogridNotFoundException("Microgrid não encontrada para exclusão.");
     }
 
-
-    /**
-     * Atualiza os dados de uma microgrid existente no banco de dados.
-     *
-     * @param microgrid Objeto MicrogridTO com os dados atualizados.
-     * @return true se a atualização for bem-sucedida.
-     */
     public boolean update(MicrogridTO microgrid) {
         if (microgrid == null || microgrid.getIdMicrogrid() == null) {
             throw new InvalidMicrogridException("A microgrid ou o ID da microgrid não podem ser nulos.");
@@ -198,7 +167,7 @@ public class MicrogridDAO extends Repository {
                 return true;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao atualizar microgrid: " + e.getMessage());
             throw new InvalidMicrogridException("Erro ao atualizar microgrid: " + e.getMessage());
         }
 

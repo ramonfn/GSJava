@@ -5,9 +5,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
-/**
- * Classe que representa o registro mensal de geração e consumo de energia.
- */
 public class GeracaoConsumoMensalTO {
 
     @NotNull
@@ -146,11 +143,6 @@ public class GeracaoConsumoMensalTO {
         this.unidadeConsumo = unidadeConsumo;
     }
 
-    /**
-     * Calcula a diferença entre watts gerados e consumidos.
-     *
-     * @return diferença entre watts gerados e consumidos.
-     */
     public double calcularDiferencaWatts() {
         return this.wattsGerados - this.wattsConsumidos;
     }
@@ -162,4 +154,5 @@ public class GeracaoConsumoMensalTO {
                 idRegistro, idMicrogrid, ano, mes, wattsGerados, unidadeGeracao,
                 wattsConsumidos, unidadeConsumo, calcularDiferencaWatts());
     }
+
 }

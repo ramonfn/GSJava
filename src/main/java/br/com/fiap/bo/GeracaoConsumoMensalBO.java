@@ -29,19 +29,28 @@ public class GeracaoConsumoMensalBO {
         if (idRegistro == null) {
             throw new InvalidGeracaoConsumoMensalException("ID do registro é obrigatório.");
         }
+
+        // Log para depuração
+        System.out.println("Buscando registro com ID: " + idRegistro);
+
         GeracaoConsumoMensalTO registro = geracaoConsumoMensalDAO.findById(idRegistro);
+
         if (registro == null) {
+            System.out.println("Nenhum registro encontrado para o ID: " + idRegistro);
             throw new GeracaoConsumoMensalNotFoundException("Registro não encontrado para o ID fornecido: " + idRegistro);
         }
+
+        // Log para sucesso
+        System.out.println("Registro encontrado: " + registro);
         return registro;
     }
+
 
 
     public GeracaoConsumoMensalTO save(GeracaoConsumoMensalTO registro) {
         validateRegistro(registro);
         GeracaoConsumoMensalTO savedRegistro = geracaoConsumoMensalDAO.save(registro);
         calcularEGuardarEstimativa(savedRegistro);
-        gerarRelatoriosAutomatizados(savedRegistro.getIdMicrogrid());
         return savedRegistro;
     }
 
@@ -49,28 +58,25 @@ public class GeracaoConsumoMensalBO {
         if (idRegistro == null) {
             throw new InvalidGeracaoConsumoMensalException("ID do registro não pode ser nulo.");
         }
+
+        // Busca o registro para obter informações necessárias
         GeracaoConsumoMensalTO registro = geracaoConsumoMensalDAO.findById(idRegistro);
         if (registro == null) {
             throw new GeracaoConsumoMensalNotFoundException("Registro não encontrado para exclusão.");
         }
 
-        // Calcular mês e ano ajustados
-        int mesAjustado = registro.getMes() + 1;
-        int anoAjustado = registro.getAno();
-        if (mesAjustado > 12) {
-            mesAjustado = 1;
-            anoAjustado++;
-        }
-
+        // Exclui o registro em GeracaoConsumoMensal
         boolean isDeleted = geracaoConsumoMensalDAO.delete(idRegistro);
+
         if (isDeleted) {
+            // Exclui as estimativas relacionadas
             estimativaGeracaoDAO.deleteByMicrogridAnoMes(
                     registro.getIdMicrogrid(),
-                    anoAjustado,
-                    mesAjustado
+                    registro.getAno(),
+                    registro.getMes() + 1 // Ajuste para estimativas relacionadas ao próximo mês
             );
         }
-        gerarRelatoriosAutomatizados(registro.getIdMicrogrid());
+
         return isDeleted;
     }
 
@@ -80,7 +86,6 @@ public class GeracaoConsumoMensalBO {
         boolean isUpdated = geracaoConsumoMensalDAO.update(registro);
         if (isUpdated) {
             recalcularEAtualizarEstimativa(registro);
-            gerarRelatoriosAutomatizados(registro.getIdMicrogrid());
         }
         return isUpdated;
     }
@@ -125,37 +130,5 @@ public class GeracaoConsumoMensalBO {
         }
     }
 
-    public double calcularMediaDiferencaWatts(Long idMicrogrid) {
-        ArrayList<GeracaoConsumoMensalTO> registros = geracaoConsumoMensalDAO.findByMicrogrid(idMicrogrid);
-        return registros.stream()
-                .mapToDouble(GeracaoConsumoMensalTO::calcularDiferencaWatts)
-                .average()
-                .orElse(0.0);
-    }
-
-    public double calcularProporcaoGeracaoConsumo(Long idMicrogrid) {
-        ArrayList<GeracaoConsumoMensalTO> registros = geracaoConsumoMensalDAO.findByMicrogrid(idMicrogrid);
-        double totalGerado = registros.stream().mapToDouble(GeracaoConsumoMensalTO::getWattsGerados).sum();
-        double totalConsumido = registros.stream().mapToDouble(GeracaoConsumoMensalTO::getWattsConsumidos).sum();
-        if (totalConsumido == 0) {
-            throw new InvalidGeracaoConsumoMensalException("Total consumido não pode ser zero.");
-        }
-        return totalGerado / totalConsumido;
-    }
-    public String gerarRelatorioProporcaoGeracaoConsumo(Long idMicrogrid) {
-        double proporcao = calcularProporcaoGeracaoConsumo(idMicrogrid);
-        return String.format("Proporção geração/consumo para a microgrid %d: %.2f", idMicrogrid, proporcao);
-    }
-    public String gerarAnaliseMediaDiferencaWatts(Long idMicrogrid) {
-        double media = calcularMediaDiferencaWatts(idMicrogrid);
-        return String.format("Média da diferença entre watts gerados e consumidos: %.2f", media);
-    }
-    public void gerarRelatoriosAutomatizados(Long idMicrogrid) {
-        String analise = gerarAnaliseMediaDiferencaWatts(idMicrogrid);
-        String proporcao = gerarRelatorioProporcaoGeracaoConsumo(idMicrogrid);
-        System.out.println("Relatórios Gerados:");
-        System.out.println(analise);
-        System.out.println(proporcao);
-    }
 
 }

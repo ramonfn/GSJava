@@ -193,10 +193,7 @@ public class FonteEnergiaDAO extends Repository {
         return fonte;
     }
 
-    public void gerarRelatorioFontes(Long idMicrogrid) {
-        ArrayList<FonteEnergiaTO> fontes = findByMicrogrid(idMicrogrid);
-        fontes.forEach(fonte -> System.out.println(fonte.gerarDescricaoDetalhada()));
-    }
+
     public double calcularCapacidadeTotalPorMicrogrid(Long idMicrogrid) {
         String sql = "SELECT SUM(CAPACIDADE_INSTALADA) AS TOTAL FROM FONTE_ENERGIA WHERE ID_MICROGRID = ?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
@@ -211,13 +208,6 @@ public class FonteEnergiaDAO extends Repository {
             closeConnection();
         }
         return 0;
-    }
-    public void validarFonte(FonteEnergiaTO fonte) {
-        if (!fonte.verificarCapacidadeInstalada(1000.0)) {
-            throw new InvalidFonteEnergiaException("Capacidade instalada excede o limite.");
-        }
-        int anos = fonte.calcularTempoOperacao();
-        System.out.println("A fonte está operando há " + anos + " anos.");
     }
 
 }

@@ -84,12 +84,6 @@ public class EstimativaGeracaoTO {
         this.wattsEstimados = wattsEstimados;
     }
 
-    /**
-     * Calcula a média dos watts estimados com base em uma lista de estimativas.
-     *
-     * @param estimativas Lista de estimativas de geração.
-     * @return Média dos watts estimados ou 0.0 se a lista estiver vazia.
-     */
     public double calcularMediaWattsEstimados(ArrayList<EstimativaGeracaoTO> estimativas) {
         if (estimativas == null || estimativas.isEmpty()) {
             return 0.0;
@@ -99,25 +93,5 @@ public class EstimativaGeracaoTO {
             soma += estimativa.getWattsEstimados();
         }
         return soma / estimativas.size();
-    }
-
-    /**
-     * Filtra uma lista de estimativas pelo ano fornecido.
-     *
-     * @param estimativas Lista de estimativas de geração.
-     * @param ano Ano para filtro.
-     * @return Lista de estimativas do ano especificado.
-     */
-    public static ArrayList<EstimativaGeracaoTO> filtrarPorAno(ArrayList<EstimativaGeracaoTO> estimativas, Integer ano) {
-        if (estimativas == null || ano == null) {
-            throw new IllegalArgumentException("A lista de estimativas e o ano não podem ser nulos.");
-        }
-        ArrayList<EstimativaGeracaoTO> resultado = new ArrayList<>();
-        for (EstimativaGeracaoTO estimativa : estimativas) {
-            if (ano.equals(estimativa.getAno())) {
-                resultado.add(estimativa);
-            }
-        }
-        return resultado;
     }
 }

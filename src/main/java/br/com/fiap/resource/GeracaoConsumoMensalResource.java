@@ -29,11 +29,21 @@ public class GeracaoConsumoMensalResource {
     }
 
     @GET
-    @Path("/{idRegistro}")
+    @Path("/{idRegistro}/{idMicrogrid}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response findById(@PathParam("idRegistro") Long idRegistro) {
+    public Response findById(@PathParam("idRegistro") Long idRegistro,
+                             @PathParam("idMicrogrid") Long idMicrogrid) {
         try {
+            // Você pode usar o idMicrogrid para validações adicionais, se necessário
             GeracaoConsumoMensalTO resultado = geracaoConsumoMensalBO.findById(idRegistro);
+
+            // Caso queira validar o idMicrogrid
+            if (!resultado.getIdMicrogrid().equals(idMicrogrid)) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("O registro encontrado não pertence ao microgrid especificado.")
+                        .build();
+            }
+
             return Response.ok(resultado).build();
         } catch (GeracaoConsumoMensalNotFoundException e) {
             return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
@@ -55,27 +65,17 @@ public class GeracaoConsumoMensalResource {
         }
     }
 
-    @GET
-    @Path("/proporcao-geracao-consumo")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response calcularProporcaoGeracaoConsumo(@QueryParam("idMicrogrid") Long idMicrogrid) {
-        try {
-            double proporcao = geracaoConsumoMensalBO.calcularProporcaoGeracaoConsumo(idMicrogrid);
-            return Response.ok(String.format("{\"proporcao\": %.2f}", proporcao)).build();
-        } catch (InvalidGeracaoConsumoMensalException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Erro inesperado: " + e.getMessage()).build();
-        }
-    }
-
     @PUT
-    @Path("/{idRegistro}")
+    @Path("/{idRegistro}/{idMicrogrid}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("idRegistro") Long idRegistro, GeracaoConsumoMensalTO registro) {
+    public Response update(@PathParam("idRegistro") Long idRegistro,
+                           @PathParam("idMicrogrid") Long idMicrogrid,
+                           GeracaoConsumoMensalTO registro) {
         try {
-            // Atualiza o id do registro no objeto recebido, garantindo que ele seja atualizado corretamente
+            // Define os valores no objeto recebido
             registro.setIdRegistro(idRegistro);
+            registro.setIdMicrogrid(idMicrogrid);
+
             boolean atualizado = geracaoConsumoMensalBO.update(registro);
             if (atualizado) {
                 return Response.ok().build();
@@ -90,11 +90,10 @@ public class GeracaoConsumoMensalResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Erro inesperado: " + e.getMessage()).build();
         }
     }
-
-
     @DELETE
-    @Path("/{idRegistro}")
-    public Response delete(@PathParam("idRegistro") Long idRegistro) {
+    @Path("/{idRegistro}/{idMicrogrid}")
+    public Response delete(@PathParam("idRegistro") Long idRegistro,
+                           @PathParam("idMicrogrid") Long idMicrogrid) {
         try {
             boolean deletado = geracaoConsumoMensalBO.delete(idRegistro);
             if (deletado) {
@@ -110,59 +109,27 @@ public class GeracaoConsumoMensalResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Erro inesperado: " + e.getMessage()).build();
         }
     }
-    @GET
-    @Path("/analise-media-diferenca")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response gerarAnaliseMediaDiferencaWatts(@QueryParam("idMicrogrid") Long idMicrogrid) {
-        try {
-            String analise = geracaoConsumoMensalBO.gerarAnaliseMediaDiferencaWatts(idMicrogrid);
-            return Response.ok(analise).build();
-        } catch (InvalidGeracaoConsumoMensalException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Erro inesperado: " + e.getMessage()).build();
-        }
-    }
-    @GET
-    @Path("/relatorio-proporcao")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response gerarRelatorioProporcaoGeracaoConsumo(@QueryParam("idMicrogrid") Long idMicrogrid) {
-        try {
-            String relatorio = geracaoConsumoMensalBO.gerarRelatorioProporcaoGeracaoConsumo(idMicrogrid);
-            return Response.ok(relatorio).build();
-        } catch (InvalidGeracaoConsumoMensalException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Erro inesperado: " + e.getMessage()).build();
-        }
-    }
-    @GET
-    @Path("/relatorios-automatizados")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response gerarRelatoriosAutomatizados(@QueryParam("idMicrogrid") Long idMicrogrid) {
-        if (idMicrogrid == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("ID da microgrid é obrigatório.").build();
-        }
-        try {
-            geracaoConsumoMensalBO.gerarRelatoriosAutomatizados(idMicrogrid);
-            return Response.ok("Relatórios automatizados gerados com sucesso!").build();
-        } catch (InvalidGeracaoConsumoMensalException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Erro inesperado: " + e.getMessage()).build();
-        }
-    }
-
 
     @GET
-    @Path("/diferenca-media")
+    @Path("/{idRegistro}/{idMicrogrid}/diferenca")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response calcularMediaDiferencaWatts(@QueryParam("idMicrogrid") Long idMicrogrid) {
+    public Response calcularDiferencaWatts(@PathParam("idRegistro") Long idRegistro,
+                                           @PathParam("idMicrogrid") Long idMicrogrid) {
         try {
-            double media = geracaoConsumoMensalBO.calcularMediaDiferencaWatts(idMicrogrid);
-            return Response.ok(media).build();
-        } catch (InvalidGeracaoConsumoMensalException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+            GeracaoConsumoMensalTO registro = geracaoConsumoMensalBO.findById(idRegistro);
+
+            // Valida se o registro pertence ao microgrid especificado
+            if (!registro.getIdMicrogrid().equals(idMicrogrid)) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("O registro encontrado não pertence ao microgrid especificado.")
+                        .build();
+            }
+
+            // Calcula a diferença de watts
+            double diferenca = registro.calcularDiferencaWatts();
+            return Response.ok(String.format("{\"diferencaWatts\": %.2f}", diferenca)).build();
+        } catch (GeracaoConsumoMensalNotFoundException e) {
+            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Erro inesperado: " + e.getMessage()).build();
         }

@@ -47,12 +47,7 @@ public class MicrogridResource {
         }
     }
 
-    /**
-     * Cria uma nova microgrid.
-     *
-     * @param microgrid Objeto da microgrid enviado no corpo da requisição.
-     * @return Microgrid criada.
-     */
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response save(MicrogridTO microgrid) {
@@ -69,12 +64,7 @@ public class MicrogridResource {
         }
     }
 
-    /**
-     * Atualiza uma microgrid existente.
-     *
-     * @param microgrid Microgrid a ser atualizada.
-     * @return Resposta indicando sucesso ou erro.
-     */
+
     @PUT
     @Path("/{idMicrogrid}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -96,12 +86,7 @@ public class MicrogridResource {
         }
     }
 
-    /**
-     * Exclui uma microgrid pelo ID.
-     *
-     * @param idMicrogrid ID da microgrid.
-     * @return Resposta indicando sucesso ou erro.
-     */
+
     @DELETE
     @Path("/{idMicrogrid}")
     public Response delete(@PathParam("idMicrogrid") Long idMicrogrid) {

@@ -32,17 +32,18 @@ public class GeracaoConsumoMensalDAO extends Repository {
     }
 
     private GeracaoConsumoMensalTO populateRegistro(ResultSet rs) throws SQLException {
-        return new GeracaoConsumoMensalTO(
-                rs.getLong("ID_REGISTRO"),        // Certifique-se de que o nome existe no banco
-                rs.getLong("ID_MICROGRID"),      // Nome correto da coluna no banco
-                rs.getInt("ANO"),                // Nome correto da coluna no banco
-                rs.getInt("MES"),                // Nome correto da coluna no banco
-                rs.getDouble("WATTS_GERADOS"),   // Corrigido para "WATTS_GERADOS"
-                rs.getString("UNIDADE_GERACAO"), // Nome correto da coluna no banco
-                rs.getDouble("WATTS_CONSUMIDOS"),// Corrigido para "WATTS_CONSUMIDOS"
-                rs.getString("UNIDADE_CONSUMO")  // Nome correto da coluna no banco
-        );
+        GeracaoConsumoMensalTO registro = new GeracaoConsumoMensalTO();
+        registro.setIdRegistro(rs.getLong("ID_REGISTRO"));
+        registro.setIdMicrogrid(rs.getLong("ID_MICROGRID"));
+        registro.setAno(rs.getInt("ANO"));
+        registro.setMes(rs.getInt("MES"));
+        registro.setUnidadeConsumo(rs.getString("UNIDADE_CONSUMO"));
+        registro.setUnidadeGeracao(rs.getString("UNIDADE_GERACAO"));
+        registro.setWattsConsumidos(rs.getDouble("WATTS_CONSUMIDOS"));
+        registro.setWattsGerados(rs.getDouble("WATTS_GERADOS"));
+        return registro;
     }
+
 
     public GeracaoConsumoMensalTO findById(Long idRegistro) {
         if (idRegistro == null) {
@@ -50,14 +51,20 @@ public class GeracaoConsumoMensalDAO extends Repository {
         }
 
         String sql = "SELECT * FROM GERACAO_CONSUMO_MENSAL WHERE ID_REGISTRO = ?";
+        System.out.println("Executando query para buscar registro por ID: " + idRegistro);
+
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setLong(1, idRegistro);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
+                    System.out.println("Registro encontrado: " + idRegistro);
                     return populateRegistro(rs);
+                } else {
+                    System.out.println("Registro não encontrado: " + idRegistro);
                 }
             }
         } catch (SQLException e) {
+            System.err.println("Erro ao buscar registro por ID: " + idRegistro + " - " + e.getMessage());
             throw new InvalidGeracaoConsumoMensalException("Erro ao buscar registro por ID: " + e.getMessage());
         } finally {
             closeConnection();
@@ -66,31 +73,9 @@ public class GeracaoConsumoMensalDAO extends Repository {
         throw new GeracaoConsumoMensalNotFoundException("Registro não encontrado para o ID especificado.");
     }
 
-    public ArrayList<GeracaoConsumoMensalTO> findByMicrogrid(Long idMicrogrid) {
-        if (idMicrogrid == null) {
-            throw new InvalidGeracaoConsumoMensalException("ID da microgrid não pode ser nulo.");
-        }
 
-        ArrayList<GeracaoConsumoMensalTO> registros = new ArrayList<>();
-        String sql = "SELECT * FROM GERACAO_CONSUMO_MENSAL WHERE ID_MICROGRID = ? ORDER BY ANO, MES";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-            ps.setLong(1, idMicrogrid);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    registros.add(populateRegistro(rs));
-                }
-            }
-        } catch (SQLException e) {
-            throw new InvalidGeracaoConsumoMensalException("Erro ao buscar registros por microgrid: " + e.getMessage());
-        } finally {
-            closeConnection();
-        }
 
-        if (registros.isEmpty()) {
-            throw new GeracaoConsumoMensalNotFoundException("Nenhum registro encontrado para a microgrid especificada.");
-        }
-        return registros;
-    }
+
 
     public GeracaoConsumoMensalTO save(GeracaoConsumoMensalTO registro) {
         String sql = "INSERT INTO GERACAO_CONSUMO_MENSAL (ID_MICROGRID, ANO, MES, WATTS_GERADOS, UNIDADE_GERACAO, WATTS_CONSUMIDOS, UNIDADE_CONSUMO) VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -150,12 +135,6 @@ public class GeracaoConsumoMensalDAO extends Repository {
             throw new InvalidGeracaoConsumoMensalException("Erro ao atualizar registro: " + e.getMessage());
         } finally {
             closeConnection();
-        }
-    }
-
-    private void validateIdAnoMes(Long idMicrogrid, Integer ano, Integer mes) {
-        if (idMicrogrid == null || ano == null || mes == null) {
-            throw new InvalidGeracaoConsumoMensalException("ID da microgrid, ano e mês são obrigatórios.");
         }
     }
 }
