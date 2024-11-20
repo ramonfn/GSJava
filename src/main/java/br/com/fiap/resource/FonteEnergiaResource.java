@@ -67,6 +67,7 @@ public class FonteEnergiaResource {
     }
 
     @PUT
+    @Path("/{idFonte}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response update(FonteEnergiaTO fonteEnergia) {
         try {

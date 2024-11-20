@@ -36,7 +36,7 @@ public class EstimativaGeracaoResource {
     }
 
 
-
+//unica classe que não precisa do método update, ja que é atualizada assim que atualiza a geração e consumo mensal
     /**
      * Retorna uma estimativa específica com base no ID.
      *
@@ -192,7 +192,5 @@ public class EstimativaGeracaoResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Erro inesperado: " + e.getMessage()).build();
         }
     }
-
-
 
 }

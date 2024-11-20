@@ -72,40 +72,4 @@ public class MicrogridTO {
         this.totalHabitantes = totalHabitantes;
     }
 
-    // Lógica adicional
-
-    /**
-     * Calcula a densidade de habitantes por residência.
-     *
-     * @return Densidade de habitantes por residência.
-     */
-    public double calcularDensidadeHabitantesPorResidencia() {
-        if (this.totalResidencias <= 0) {
-            throw new IllegalArgumentException("O total de residências deve ser maior que zero.");
-        }
-        return (double) this.totalHabitantes / this.totalResidencias;
-    }
-
-    /**
-     * Verifica se a densidade de habitantes está dentro de um limite aceitável.
-     *
-     * @param limite Limite máximo de densidade.
-     * @return true se estiver dentro do limite; false caso contrário.
-     */
-    public boolean verificarDensidadeDentroDoLimite(double limite) {
-        return this.calcularDensidadeHabitantesPorResidencia() <= limite;
-    }
-
-    /**
-     * Gera uma descrição detalhada da microgrid.
-     *
-     * @return String com os detalhes da microgrid.
-     */
-    public String gerarDescricaoDetalhada() {
-        return String.format(
-                "Microgrid [ID: %d, Nome: %s, Endereço: %s, Total de Residências: %d, Total de Habitantes: %d, Densidade: %.2f habitantes/residência]",
-                this.idMicrogrid, this.nome, this.endereco, this.totalResidencias,
-                this.totalHabitantes, this.totalResidencias > 0 ? this.calcularDensidadeHabitantesPorResidencia() : 0.0
-        );
-    }
 }

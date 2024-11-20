@@ -44,29 +44,6 @@ public class GeracaoConsumoMensalDAO extends Repository {
         );
     }
 
-
-    public GeracaoConsumoMensalTO findByAnoMes(Long idMicrogrid, Integer ano, Integer mes) {
-        validateIdAnoMes(idMicrogrid, ano, mes);
-
-        String sql = "SELECT * FROM GERACAO_CONSUMO_MENSAL WHERE ID_MICROGRID = ? AND ANO = ? AND MES = ?";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-            ps.setLong(1, idMicrogrid);
-            ps.setInt(2, ano);
-            ps.setInt(3, mes);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return populateRegistro(rs);
-                }
-            }
-        } catch (SQLException e) {
-            throw new InvalidGeracaoConsumoMensalException("Erro ao buscar registro por ano e mês: " + e.getMessage());
-        } finally {
-            closeConnection();
-        }
-
-        throw new GeracaoConsumoMensalNotFoundException("Registro não encontrado para o ano e mês especificados.");
-    }
-
     public GeracaoConsumoMensalTO findById(Long idRegistro) {
         if (idRegistro == null) {
             throw new InvalidGeracaoConsumoMensalException("ID do registro não pode ser nulo.");
@@ -116,7 +93,7 @@ public class GeracaoConsumoMensalDAO extends Repository {
     }
 
     public GeracaoConsumoMensalTO save(GeracaoConsumoMensalTO registro) {
-        String sql = "INSERT INTO GERACAO_CONSUMO_MENSAL (ID_MICROGRID, ANO, MES, WATS_GERADOS, UNIDADE_GERACAO, WATS_CONSUMIDOS, UNIDADE_CONSUMO) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO GERACAO_CONSUMO_MENSAL (ID_MICROGRID, ANO, MES, WATTS_GERADOS, UNIDADE_GERACAO, WATTS_CONSUMIDOS, UNIDADE_CONSUMO) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = getConnection().prepareStatement(sql, new String[]{"ID_REGISTRO"})) {
             ps.setLong(1, registro.getIdMicrogrid());
             ps.setInt(2, registro.getAno());
@@ -161,7 +138,7 @@ public class GeracaoConsumoMensalDAO extends Repository {
 
 
     public boolean update(GeracaoConsumoMensalTO registro) {
-        String sql = "UPDATE GERACAO_CONSUMO_MENSAL SET WATS_GERADOS = ?, UNIDADE_GERACAO = ?, WATS_CONSUMIDOS = ?, UNIDADE_CONSUMO = ? WHERE ID_REGISTRO = ?";
+        String sql = "UPDATE GERACAO_CONSUMO_MENSAL SET WATTS_GERADOS = ?, UNIDADE_GERACAO = ?, WATTS_CONSUMIDOS = ?, UNIDADE_CONSUMO = ? WHERE ID_REGISTRO = ?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setDouble(1, registro.getWattsGerados());
             ps.setString(2, registro.getUnidadeGeracao());

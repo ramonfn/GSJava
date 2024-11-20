@@ -135,7 +135,6 @@ public class EstimativaGeracaoBO {
                 .orElse(0.0);
     }
 
-    // Exemplo de uso do método 'filtrarPorAno'
     public ArrayList<EstimativaGeracaoTO> buscarEstimativasPorAno(ArrayList<EstimativaGeracaoTO> estimativas, int ano) {
         if (ano < 1000 || ano > 9999) {
             throw new IllegalArgumentException("O ano deve conter exatamente 4 dígitos.");

@@ -29,18 +29,14 @@ public class GeracaoConsumoMensalResource {
     }
 
     @GET
-    @Path("/{idMicrogrid}/{ano}/{mes}")
+    @Path("/{idRegistro}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response findByAnoMes(@PathParam("idMicrogrid") Long idMicrogrid,
-                                 @PathParam("ano") Integer ano,
-                                 @PathParam("mes") Integer mes) {
+    public Response findById(@PathParam("idRegistro") Long idRegistro) {
         try {
-            GeracaoConsumoMensalTO resultado = geracaoConsumoMensalBO.findByAnoMes(idMicrogrid, ano, mes);
+            GeracaoConsumoMensalTO resultado = geracaoConsumoMensalBO.findById(idRegistro);
             return Response.ok(resultado).build();
         } catch (GeracaoConsumoMensalNotFoundException e) {
             return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
-        } catch (InvalidGeracaoConsumoMensalException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Erro inesperado: " + e.getMessage()).build();
         }
@@ -74,39 +70,18 @@ public class GeracaoConsumoMensalResource {
     }
 
     @PUT
+    @Path("/{idRegistro}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response update(GeracaoConsumoMensalTO registro) {
+    public Response update(@PathParam("idRegistro") Long idRegistro, GeracaoConsumoMensalTO registro) {
         try {
+            // Atualiza o id do registro no objeto recebido, garantindo que ele seja atualizado corretamente
+            registro.setIdRegistro(idRegistro);
             boolean atualizado = geracaoConsumoMensalBO.update(registro);
             if (atualizado) {
                 return Response.ok().build();
             } else {
                 throw new GeracaoConsumoMensalNotFoundException("Registro não encontrado para atualização.");
             }
-        } catch (GeracaoConsumoMensalNotFoundException e) {
-            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
-        } catch (InvalidGeracaoConsumoMensalException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Erro inesperado: " + e.getMessage()).build();
-        }
-    }
-    @PUT
-    @Path("/{idRegistro}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response atualizarRegistro(@PathParam("idRegistro") Long idRegistro,
-                                      GeracaoConsumoMensalTO novosDados) {
-        try {
-            geracaoConsumoMensalBO.atualizarRegistro(
-                    idRegistro,
-                    novosDados.getAno(),
-                    novosDados.getMes(),
-                    novosDados.getWattsGerados(),
-                    novosDados.getUnidadeGeracao(),
-                    novosDados.getWattsConsumidos(),
-                    novosDados.getUnidadeConsumo()
-            );
-            return Response.ok("Registro atualizado com sucesso.").build();
         } catch (GeracaoConsumoMensalNotFoundException e) {
             return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
         } catch (InvalidGeracaoConsumoMensalException e) {

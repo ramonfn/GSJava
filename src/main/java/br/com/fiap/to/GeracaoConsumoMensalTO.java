@@ -154,26 +154,6 @@ public class GeracaoConsumoMensalTO {
     public double calcularDiferencaWatts() {
         return this.wattsGerados - this.wattsConsumidos;
     }
-    /**
-     * Atualiza os valores de um registro de geração e consumo.
-     *
-     * @param ano Novo ano do registro.
-     * @param mes Novo mês do registro.
-     * @param wattsGerados Nova quantidade de watts gerados.
-     * @param unidadeGeracao Nova unidade de geração.
-     * @param wattsConsumidos Nova quantidade de watts consumidos.
-     * @param unidadeConsumo Nova unidade de consumo.
-     */
-    public void atualizarRegistro(Integer ano, Integer mes, double wattsGerados, String unidadeGeracao,
-                                  double wattsConsumidos, String unidadeConsumo) {
-        setAno(ano);
-        setMes(mes);
-        setWattsGerados(wattsGerados);
-        setUnidadeGeracao(unidadeGeracao);
-        setWattsConsumidos(wattsConsumidos);
-        setUnidadeConsumo(unidadeConsumo);
-    }
-
 
     @Override
     public String toString() {

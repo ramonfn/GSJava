@@ -12,14 +12,7 @@ import java.util.ArrayList;
 
 @Path("/microgrid")
 public class MicrogridResource {
-
     private final MicrogridBO microgridBO = new MicrogridBO();
-
-    /**
-     * Busca todas as microgrids.
-     *
-     * @return Lista de microgrids em formato JSON.
-     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response findAll() {
@@ -37,12 +30,6 @@ public class MicrogridResource {
         }
     }
 
-    /**
-     * Busca uma microgrid pelo ID.
-     *
-     * @param idMicrogrid ID da microgrid.
-     * @return Microgrid correspondente ao ID.
-     */
     @GET
     @Path("/{idMicrogrid}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -135,38 +122,6 @@ public class MicrogridResource {
         }
     }
 
-    /**
-     * Verifica a densidade de habitantes por residência de uma microgrid.
-     *
-     * @param idMicrogrid ID da microgrid.
-     * @param limite      Limite de densidade.
-     * @return true se dentro do limite.
-     */
-    @GET
-    @Path("/{idMicrogrid}/densidade-verificar")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response verificarDensidade(@PathParam("idMicrogrid") Long idMicrogrid, @QueryParam("limite") double limite) {
-        System.out.println("Requisição recebida: GET /microgrid/" + idMicrogrid + "/densidade-verificar");
-        try {
-            MicrogridTO microgrid = microgridBO.findById(idMicrogrid);
-            boolean dentroDoLimite = microgrid.verificarDensidadeDentroDoLimite(limite);
-            return Response.ok(dentroDoLimite).build();
-        } catch (MicrogridNotFoundException | InvalidMicrogridException e) {
-            System.err.println("Erro: " + e.getMessage());
-            return buildErrorResponse(Response.Status.NOT_FOUND, e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return buildErrorResponse(Response.Status.INTERNAL_SERVER_ERROR, "Erro inesperado: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Método utilitário para construir respostas de erro.
-     *
-     * @param status Código de status HTTP.
-     * @param mensagem Mensagem de erro.
-     * @return Resposta de erro.
-     */
     private Response buildErrorResponse(Response.Status status, String mensagem) {
         return Response.status(status)
                 .entity("{\"erro\":\"" + mensagem + "\"}")

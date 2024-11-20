@@ -25,17 +25,17 @@ public class GeracaoConsumoMensalBO {
         }
         return registros;
     }
-
-    public GeracaoConsumoMensalTO findByAnoMes(Long idMicrogrid, Integer ano, Integer mes) {
-        if (idMicrogrid == null || ano == null || mes == null) {
-            throw new InvalidGeracaoConsumoMensalException("ID da microgrid, ano e mês são obrigatórios.");
+    public GeracaoConsumoMensalTO findById(Long idRegistro) {
+        if (idRegistro == null) {
+            throw new InvalidGeracaoConsumoMensalException("ID do registro é obrigatório.");
         }
-        GeracaoConsumoMensalTO registro = geracaoConsumoMensalDAO.findByAnoMes(idMicrogrid, ano, mes);
+        GeracaoConsumoMensalTO registro = geracaoConsumoMensalDAO.findById(idRegistro);
         if (registro == null) {
-            throw new GeracaoConsumoMensalNotFoundException("Registro não encontrado para o ano e mês especificados.");
+            throw new GeracaoConsumoMensalNotFoundException("Registro não encontrado para o ID fornecido: " + idRegistro);
         }
         return registro;
     }
+
 
     public GeracaoConsumoMensalTO save(GeracaoConsumoMensalTO registro) {
         validateRegistro(registro);
@@ -156,15 +156,6 @@ public class GeracaoConsumoMensalBO {
         System.out.println("Relatórios Gerados:");
         System.out.println(analise);
         System.out.println(proporcao);
-    }
-    public void atualizarRegistro(Long idRegistro, Integer ano, Integer mes, double wattsGerados,
-                                  String unidadeGeracao, double wattsConsumidos, String unidadeConsumo) {
-        GeracaoConsumoMensalTO registro = geracaoConsumoMensalDAO.findById(idRegistro);
-        if (registro == null) {
-            throw new GeracaoConsumoMensalNotFoundException("Registro não encontrado para atualização.");
-        }
-        registro.atualizarRegistro(ano, mes, wattsGerados, unidadeGeracao, wattsConsumidos, unidadeConsumo);
-        geracaoConsumoMensalDAO.update(registro);
     }
 
 }
