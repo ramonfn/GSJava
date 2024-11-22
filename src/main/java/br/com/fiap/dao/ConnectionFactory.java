@@ -1,7 +1,6 @@
 package br.com.fiap.dao;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -22,68 +21,65 @@ public class ConnectionFactory {
         this.driver = driver;
     }
 
-    public static ConnectionFactory getInstance() {
-        ConnectionFactory result = instance;
-        if(result != null) {
-            return result;
+    public static synchronized ConnectionFactory getInstance() {
+        if (instance != null) {
+            return instance;
         }
-        Properties prop = new Properties();
-        FileInputStream file = null;
-        try{
-            file = new FileInputStream("./src/main/resources/application.properties");
+
+        try (InputStream file = ConnectionFactory.class.getClassLoader().getResourceAsStream("application.properties")) {
+            if (file == null) {
+                throw new RuntimeException("Arquivo application.properties não encontrado no classpath.");
+            }
+
+            Properties prop = new Properties();
             prop.load(file);
+
             String url = prop.getProperty("datasource.url");
             String user = prop.getProperty("datasource.username");
             String pass = prop.getProperty("datasource.password");
-            String driver  = prop.getProperty("datasource.driver-class-name");
-            file.close();
-            if (instance == null) {
-                instance = new ConnectionFactory(url, user, pass, driver);
-            }
-            return instance;
-        }catch (FileNotFoundException e) {
-            System.out.println("Erro (FileNotFoundException): " + e.getMessage());
-        }catch (IOException e) {
-            System.out.println("Erro (IOException): " + e.getMessage());
+            String driver = prop.getProperty("datasource.driver-class-name");
+
+            instance = new ConnectionFactory(url, user, pass, driver);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao carregar as configurações do banco de dados: " + e.getMessage(), e);
         }
-        return null;
+
+        return instance;
     }
 
     public Connection getConexao() {
-        try{
-            if(this.conexao != null && !this.conexao.isClosed()) {
+        try {
+            if (this.conexao != null && !this.conexao.isClosed()) {
                 return this.conexao;
             }
+
             if (this.getDriver() == null || this.getDriver().isEmpty()) {
-                throw new ClassNotFoundException("Nome da classe nulo ou em branco");
+                throw new ClassNotFoundException("Nome do driver nulo ou vazio.");
             }
-            if (this.getUrl() == null || this.getUrl().isEmpty()) {
-                throw new SQLException("URL de conexão nulo ou em branco");
-            }
-            if (this.getUser() == null || this.getUser().isEmpty()){
-                throw new SQLException("Usuário nulo ou em branco");
-            }
+
             Class.forName(this.getDriver());
             this.conexao = DriverManager.getConnection(this.getUrl(), this.getUser(), this.getPass());
-        }catch (SQLException e) {
-            System.out.println("Erro de SQL: " + e.getMessage());
-            System.exit(1);
-        }catch (ClassNotFoundException e) {
-            System.out.println("Erro nome da classe: " + e.getMessage());
-            System.exit(1);
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao estabelecer a conexão com o banco de dados: " + e.getMessage(), e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Driver do banco de dados não encontrado: " + e.getMessage(), e);
         }
         return conexao;
     }
-    public String getUrl(){
+
+    public String getUrl() {
         return url;
     }
-    public String getUser(){
+
+    public String getUser() {
         return user;
     }
-    public String getPass(){
+
+    public String getPass() {
         return pass;
     }
-    public String getDriver(){
+
+    public String getDriver() {
         return driver;
     }
 }
